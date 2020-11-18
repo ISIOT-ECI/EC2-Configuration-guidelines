@@ -9,7 +9,7 @@ Con EC2```
 
 ![](img/1.jpg)
 
-2. Seleccionar la Amazon Machine Image(AMI) ```Amazon Linux AMI 2018.03.0 (HVM), SSD Volume Type```
+2. Seleccionar ```Amazon Linux 2 AMI (HVM), SSD Volume Type``` en ```64-bit (x86)```
 
 ![](img/2.jpg)
 
@@ -26,7 +26,7 @@ Con EC2```
 7. Una vez teniendo el archivo .pem seleccionar ```Launch Inatances```
 8. Al ver las instancias estará inicializando la EC2
 
-## Hacer puertos accesibles
+## Hacer puertos accesibles de una inatancia EC2
 Luego de que la instancia de EC2 esté en ejecución y lista para ser accedida:
 
 ![](img/5.jpg)
@@ -41,7 +41,9 @@ Especificar los puertos para hacerlos accesibles y realizar conexiones a la inst
 
 ![](img/7.jpg)
 
-Para este punto es necesario abrir solo el puerto 8083, el cual permitirá hacer solititudes al servicio REST: 
+- Si va a configurar los usuarios y la utenticación de ```influxDB``` por medio de la API REST, es necesario abrir el puerto 8086
+- Para usar la ```web UI``` de Flink, es necesario abrir el puerto 8081
+- Para acceder a la ```web UI``` de Grafana, es necesario abrir el puerto 3000
 
 ![](img/8.jpg)
 
@@ -54,7 +56,7 @@ Al conectarse debería ver algo como lo siguiente:
 
 así tiene acceso y manipulación sobre la instancia EC2
 
-## Instalar Docker en AWS
+## Instalar Docker en una inatancia EC2
 En la consola de EC2:
 1. ```sudo yum update -y```
 2. ```sudo yum install docker```
@@ -68,6 +70,10 @@ Para poder ejecutar el comando Docker-compose en EC2: [Instalación de docker-co
 Para comprobar que Docker fue instalado exitosamente puede ejecutar ```docker --version```, para comprobar que el servicio se esta ejecutando ```docker ps```(no debería mostrar errores) y para comprobar que puede ejecutar el comando docker-compose ```docker-compose --version```:
 
 ![](img/10.jpg)
+
+## Instalar Apache Maven & Java 8 en una inatancia EC2
+
+Para poder ejecutar el proyecto Maven de ```simple-flink-job```, es necesario [instalar Maven y Java 8](https://docs.aws.amazon.com/neptune/latest/userguide/iam-auth-connect-prerq.html) en la instancia EC2.
 
 ## Transferir zip del proyecto
 Es recomendable tener el ZIP del proyecto en donde está el archivo .pem para transferirlo con facilidad
@@ -86,35 +92,21 @@ Es recomendable tener el ZIP del proyecto en donde está el archivo .pem para tr
 
 ![](img/14.jpg)
 
-## Configuración del conector MQTT
-En este punto ya debería tener el archivo del proyecto, docker y docker-compose instalados en la instancia EC2.
-1. Ejecutar los contenedores como en el laboratorio 3.
+## Detalles en EC2
+En este punto ya debería tener el archivo del proyecto, ```docker```, ```docker-compose```, ```Maven``` y ```Java 8``` instalados en su instancia EC2.
 
-Nota: Al ejecutar el docker-compose dentro de EC2 puede que arroje el error ```there is insufficient memory for the java runtime environment to continue```, para esto se muestra una solución en [JRE out of memory in Docke](https://stackoverflow.com/questions/45129299/jre-out-of-memory-in-docker)
+1. Al ejecutar el docker-compose dentro de EC2, puede que arroje el error ```there is insufficient memory for the java runtime environment to continue```, para esto se muestra una solución en [JRE out of memory in Docke](https://stackoverflow.com/questions/45129299/jre-out-of-memory-in-docker)
 
-2. Para asegurar que los servicios se ejecutan correctamente, con el comando ```docker ps``` debería ver algo como:
+2. Para asegurar que los servicios se ejecutan correctamente (confirmar que el estado de todos es ```Up```), con el comando ```docker ps -a``` debería ver algo como:
 
 ![](img/17.jpg)
 
-3. Antes de configurar el conector MQTT, puede hacer una petición GET en cualquier buscador para verificar que esté funcionando correctamente:
-
-![](img/18.jpg)
-
-4. Para la configuración del conector MQTT solo debería variar (con respecto al Lab3) que en la ejecución del cliente REST, este debería hacerse a la dirección de la instancia EC2 el lugar de localhost:
-
-![](img/15.jpg)
-
-Esta es visible en la pestaña ```Detalles``` de la instancia, específicamente en ```Dirección IPv4 pública``` o ```DNS de IPv4 pública```
+Para acceder a los servicios de Docker que ofrecen una ```web UI```, se puede consultar en el browser ya sea por su dirección ipv4 pública o por su correspondiente DNS, cada uno de ellos. Estos son visibles en la pestaña ```Detalles``` de la instancia, específicamente en ```Dirección IPv4 pública``` o ```DNS de IPv4 pública```
 
 ![](img/16.jpg)
 
-5. Al consultar el path ```/connectors/cloud-mqtt-source/status``` su estado debería ser RUNNING:
+Por ejemplo, el acceso a Grafana debería poderse consultar por el puerto 3000
 
-![](img/19.jpg)
+![](img/18.jpg)
 
-6. Luego de seguir los pasos del lab 3 configurando un nuevo tópico ```feeds/data```
-
-![](img/20.jpg)
-
-Al postear información en el broker con el ESP debería ver en la terminal del docker-compose la información que esta posteando:
-
+**En este punto, ya debería cumplir todos los prerrequisitos para llevar su solución local del laboratorio 5, hacia una instancia EC2.**
